@@ -1,12 +1,9 @@
 import conf from "../conf/conf.js"
 import { Client, ID, Databases, Storage, Query } from "appwrite"
-
 export class Service {
-
     Client = new Client();
     databases;
     bucket;
-
     constructor() {
         this.Client
             .setEndpoint(conf.appwriteUrl)
@@ -122,8 +119,20 @@ export class Service {
 
     getFileView(fileId) {
         return this.bucket.getFileView(conf.appwriteBucketId, fileId);
-    } 
+    }
+    
+    async getUserPosts(userId) {
+        try {
+            return await this.databases.listDocuments( // ✅ Use `this.databases`
+                conf.appwriteDatabaseId,  // ✅ Use `conf` instead of `process.env`
+                conf.appwriteCollectionId,
+                [Query.equal("userId", userId)] // ✅ Proper Query format
+            );
+        } catch (error) {
+            console.error("Error fetching user posts:", error);
+            return null;
+        }
+    }
 }
 const service = new Service();
-
 export default service;
